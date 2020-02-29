@@ -113,9 +113,10 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
    "<ul>"
    (mapconcat
     (lambda (f)
-      (when (file-directory-p (expand-file-name f dir))
-        (setq f (concat f "/")))
-      (format "<li><a href='%s'>%s</li>" f f))
+      (let ((dirp (file-directory-p (expand-file-name f dir))))
+        (format "<li><a href='%s'>%s</a></li>"
+                (concat (url-hexify-string f) (and dirp "/"))
+                (concat f (and dirp "/")))))
     (tongbu-directory-files dir)
     "\n")
    "</ul>"))
