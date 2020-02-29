@@ -51,7 +51,6 @@
           line-height: 1.5;
           padding: 10px;
           width: 100%%;
-          rows: 2;
       }
     </style>
   </head>
