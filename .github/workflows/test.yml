@@ -19,5 +19,7 @@ jobs:
         version: ${{ matrix.emacs_version }}
 
     - uses: actions/checkout@v1
+    - name: Download web-server
+      run: curl --remote-name-all https://raw.githubusercontent.com/eschulte/emacs-web-server/master/web-server{,-status-codes}.el
     - name: Byte compile
       run: emacs -Q --batch -L . --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile tongbu.el
