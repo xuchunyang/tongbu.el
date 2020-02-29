@@ -52,7 +52,7 @@
           padding: 10px;
           width: 100%%;
           rows: 2;
-      }      
+      }
     </style>
   </head>
   <body>
@@ -135,11 +135,11 @@ the third %s is for directory listing.")
 
   (tongbu-normalize-path \"/Pictures/Screen%20Shot%202020-02-05%20at%2007.55.28.png\")
   ;; => \"Pictures/Screen Shot 2020-02-05 at 07.55.28.png\"
-"
+."
   (url-unhex-string (substring uri 1)))
 
 (defun tongbu-file-request-p (request)
-  "Return non-nil if request is GET /path/to/file.
+  "Return non-nil if REQUEST is GET /path/to/file.
 The path/to/file (relative to `tongbu-docroot') has to be exists.
 Otherwise, return nil."
   (with-slots (headers) request
