@@ -4,7 +4,7 @@
 
 ;; Author: Xu Chunyang
 ;; Homepage: https://github.com/xuchunyang/tongbu.el
-;; Package-Requires: ((emacs "24.5") (web-server "0.1.2"))
+;; Package-Requires: ((emacs "25.1") (web-server "0.1.2"))
 ;; Keywords: tools
 ;; Version: 0
 
