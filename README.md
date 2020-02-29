@@ -11,7 +11,9 @@ Use `M-x tongbu` to start the server, then goto http://0.0.0.0:8888.
 - To upload file, use the file input
 - To download file, click the filename; click `..` to go to parent directory
 
-<img src="tongbu.jpg" alt="tongbu.el screenshot" width="250">
+<p align="center">
+  <img src="tongbu.jpg" alt="tongbu.el screenshot" width="250">
+</p>
 
 Use `M-x list-processes` to stop the server, the process name looks like `ws-server`.
 
