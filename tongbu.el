@@ -103,7 +103,10 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
           (tongbu-list-directory dir)))
 
 (defun tongbu-directory-files (dir)
-  (directory-files dir nil (rx bos (not (any ".")))))
+  (append
+   (unless (string= dir tongbu-docroot)
+     (list ".."))
+   (directory-files dir nil (rx bos (not (any "."))))))
 
 (defun tongbu-list-directory (dir)
   (concat
