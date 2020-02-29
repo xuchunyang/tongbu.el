@@ -9,6 +9,8 @@ Use `M-x tongbu` to start the server, then goto http://0.0.0.0:8888.
 
 <img src="tongbu.jpg" alt="tongbu.el screenshot" width="200">
 
+Use `M-x list-processes` to stop the server, the process name looks like `ws-server`.
+
 ## Customization
 
 ### `tongbu-port` (defaults to 8888)
