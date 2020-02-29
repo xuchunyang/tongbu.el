@@ -219,7 +219,9 @@ hello (2).txt, and so on."
      ((assoc-default "file" headers) (tongbu-upload-file request))
      (t (tongbu-handle-404 request)))))
 
+;;;###autoload
 (defun tongbu ()
+  "Start the web server for sharing text/files."
   (interactive)
   (ws-start
    '(((:GET  . "^/$")       . tongbu-handle-index)
