@@ -130,11 +130,13 @@ the third %s is for directory listing.")
                  "404 Not Found\n\n%s"
                  (pp-to-string headers))))
 
-;; "/Pictures/Screen%20Shot%202020-02-05%20at%2007.55.28.png"
-;; =>
-;; "Pictures/Screen Shot 2020-02-05 at 07.55.28.png"
-(defun tongbu-normalize-path (path)
-  (url-unhex-string (substring path 1)))
+(defun tongbu-normalize-path (uri)
+  "Normalize Request-URI as path.
+
+  (tongbu-normalize-path \"/Pictures/Screen%20Shot%202020-02-05%20at%2007.55.28.png\")
+  ;; => \"Pictures/Screen Shot 2020-02-05 at 07.55.28.png\"
+"
+  (url-unhex-string (substring uri 1)))
 
 (defun tongbu-file-request-p (request)
   "Return non-nil if request is GET /path/to/file.
