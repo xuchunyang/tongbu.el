@@ -69,6 +69,7 @@
       <input type='submit'>
     </form>
 
+<p>%s:</p>
 %s
 
   </body>
@@ -78,7 +79,8 @@
 
 The first %s is for text,
 the second %s is for directory name,
-the third %s is for directory listing.")
+the third %s is also for directory name,
+the fourth %s is for directory listing.")
 
 (defvar tongbu-docroot (expand-file-name "~/")
   "The web server document root.")
@@ -87,9 +89,17 @@ the third %s is for directory listing.")
   "The text for sharing.")
 
 (defun tongbu-build-html (dir)
+  "Build HTML for render.
+
+The DIR is an absolute path. For example, if user is visiting
+
+  http://localhost:8888/Pictures/Screenshots/
+
+then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
   (format tongbu-html
           tongbu-text
           (substring dir (1- (length tongbu-docroot)))
+          (abbreviate-file-name dir)
           (tongbu-list-directory dir)))
 
 (defun tongbu-directory-files (dir)
@@ -164,7 +174,7 @@ Otherwise, return nil."
              (alist-get :POST headers)))))
 
 (defun tongbu-upload-file-save-to (filename dir)
-  "Return a absolute path for saving FILENAME in DIR.
+  "Return an absolute path for saving FILENAME in DIR.
 
 The FILENAME is provided by user, it can be nil or empty (I am
 not sure).  The DIR is where the file should be in.
