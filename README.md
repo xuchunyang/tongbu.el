@@ -9,8 +9,13 @@ Use `M-x tongbu` to start the server, then goto http://0.0.0.0:8888.
 
 <img src="tongbu.jpg" alt="tongbu.el screenshot" width="200">
 
-## Customize
+## Customization
 
 ### `tongbu-port` (defaults to 8888)
 
 The server port. If you set it to 0, Emacs will pick a random port for you.
+
+## Dependencies
+
+- Emacs 25.1
+- [emacs-web-server](https://github.com/eschulte/emacs-web-server)
