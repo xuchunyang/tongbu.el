@@ -37,6 +37,17 @@
   "Port number for the tongbu web server."
   :type 'integer)
 
+(defvar tongbu-css
+  "
+textarea {
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 10px;
+    width: 100%;
+}
+"
+  "The stylesheet.")
+
 (defvar tongbu-html
   "\
 <!DOCTYPE html>
@@ -46,12 +57,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <title>Share text and files</title>
     <style>
-      textarea {
-          font-size: 1rem;
-          line-height: 1.5;
-          padding: 10px;
-          width: 100%%;
-      }
+      %s
     </style>
   </head>
   <body>
@@ -76,10 +82,13 @@
 "
   "HTML template.
 
-The first %s is for text,
-the second %s is for directory name,
-the third %s is also for directory name,
-the fourth %s is for directory listing.")
+There are 5 %s in this template, they are for
+
+- CSS
+- text (`tongbu-text')
+- directory name you are visiting
+- directory name you are visiting
+- directory listing.")
 
 (defvar tongbu-docroot (expand-file-name "~/")
   "The web server document root.")
@@ -96,6 +105,7 @@ The DIR is an absolute path. For example, if user is visiting
 
 then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
   (format tongbu-html
+          tongbu-css
           tongbu-text
           (substring dir (1- (length tongbu-docroot)))
           (abbreviate-file-name dir)
