@@ -1,1 +1,2 @@
 *.elc
+/web-server*.el
