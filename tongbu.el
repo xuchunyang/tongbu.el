@@ -164,6 +164,16 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
     (ws-response-header process 200 '("Content-type" . "text/html"))
     (process-send-string process (tongbu-build-html tongbu-docroot))))
 
+(defun tongbu-inhibit-download-p (path)
+  "Return non-nil to not allow user to download PATH."
+  (let ((size (file-attribute-size (file-attributes path)))
+        (limit (* 1 1024 1024 1024)))
+    (when (> size limit)
+      (message "Can't download %s (%s) because it's large than %s"
+               path
+               (file-size-human-readable size)
+               (file-size-human-readable limit)))))
+
 (defun tongbu-handle-file (request)
   (with-slots (process headers) request
     (let* ((path (alist-get :GET headers))
@@ -174,7 +184,14 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
         (ws-response-header process 200 (cons "Content-type" "text/html"))
         (process-send-string process (tongbu-build-html path)))
        ((file-regular-p path)
-        (ws-send-file process path))))))
+        (pcase (tongbu-inhibit-download-p path)
+          ('nil (ws-send-file process path))
+          (msg
+           (ws-response-header process 500
+                               '("Content-type" . "text/plain; charset=utf-8"))
+           (process-send-string
+            process (format "500 Internal Server Error\n\n%s\n" msg))
+           (throw 'close-connection nil))))))))
 
 (defun tongbu-handle-404 (request)
   (with-slots (process headers) request
