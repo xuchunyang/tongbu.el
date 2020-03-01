@@ -74,7 +74,7 @@ textarea {
       <input type='submit'>
     </form>
 
-<p>%s:</p>
+<h3>Directory listing for %s</h3>
 %s
 
   </body>
@@ -123,21 +123,36 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
 (defun tongbu-directory-files (dir)
   (append
    (unless (string= dir tongbu-docroot)
-     (list ".."))
-   (directory-files dir nil (rx bos (not (any "."))))))
+     (list (cons ".." (file-attributes ".."))))
+   (directory-files-and-attributes dir nil (rx bos (not (any "."))))))
 
 (defun tongbu-list-directory (dir)
   (concat
-   "<ul>"
+   "
+<table>
+  <tr>
+    <th>Filename</th>
+    <th>Size</th>
+    <th>Date Modified</th>
+  </tr>"
    (mapconcat
-    (lambda (f)
-      (let ((dirp (file-directory-p (expand-file-name f dir))))
-        (format "<li><a href='%s'>%s</a></li>"
-                (concat (url-hexify-string f) (and dirp "/"))
-                (concat f (and dirp "/")))))
+    (lambda (fn-and-attrs)
+      (let* ((f (car fn-and-attrs))
+             (attrs (cdr fn-and-attrs))
+             (size (nth 7 attrs))
+             (modtime (nth 5 attrs)))
+        (let ((dirp (file-directory-p (expand-file-name f dir))))
+          (format "<tr> <td>%s</td> <td>%s</td> <td>%s</td> </tr>"
+                  (format "<a href='%s'>%s</a>"
+                          (concat (url-hexify-string f) (and dirp "/"))
+                          (concat f (and dirp "/")))
+                  (if dirp
+                      ""
+                    (file-size-human-readable size))
+                  (format-time-string "%Y-%m-%d %H:%M:%S" modtime)))))
     (tongbu-directory-files dir)
     "\n")
-   "</ul>"))
+   "</table>"))
 
 (defun tongbu-handle-index (request)
   (with-slots (process headers) request
