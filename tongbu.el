@@ -144,8 +144,8 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
     (lambda (fn-and-attrs)
       (let* ((f (car fn-and-attrs))
              (attrs (cdr fn-and-attrs))
-             (size (file-attribute-size attrs))
-             (modtime (file-attribute-modification-time attrs)))
+             (size (nth 7 attrs))
+             (modtime (nth 5 attrs)))
         (let ((dirp (file-directory-p (expand-file-name f dir))))
           (format "<tr> <td>%s</td> <td>%s</td> <td>%s</td> </tr>"
                   (format "<a href='%s'>%s</a>"
@@ -166,7 +166,7 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
 
 (defun tongbu-inhibit-download-p (path)
   "Return non-nil to not allow user to download PATH."
-  (let ((size (file-attribute-size (file-attributes path)))
+  (let ((size (nth 7 (file-attributes path)))
         (limit (* 1 1024 1024 1024)))
     (when (> size limit)
       (message "Can't download %s (%s) because it's large than %s"
