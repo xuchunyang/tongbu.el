@@ -119,7 +119,7 @@ The DIR is an absolute path. For example, if user is visiting
 then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
   (format tongbu-html
           tongbu-css
-          (tongbu-count-lines tongbu-text)
+          (max 2 (tongbu-count-lines tongbu-text))
           tongbu-text
           (substring dir (1- (length tongbu-docroot)))
           (abbreviate-file-name dir)
