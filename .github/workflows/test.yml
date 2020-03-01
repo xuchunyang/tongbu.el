@@ -30,3 +30,8 @@ jobs:
       run: emacs -Q --batch -L . --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile tongbu.el
     - name: Run tests
       run: emacs -Q --batch -L . -l tongbu-tests -f ert-run-tests-batch-and-exit
+    - name: Test the web server
+      run: |
+        screen -d -m emacs -Q -L . -l tongbu -f tongbu
+        sleep 1
+        curl localhost:8888
