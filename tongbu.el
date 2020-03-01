@@ -177,8 +177,11 @@ Otherwise, return nil."
   (with-slots (headers) request
     (let ((path (alist-get :GET headers)))
       (when path
-        (file-readable-p
-         (expand-file-name (tongbu-normalize-path path) tongbu-docroot))))))
+        (setq path (tongbu-normalize-path path))
+        ;; Don't allow http://localhost:8888///
+        (unless (file-name-absolute-p path)
+          (file-readable-p
+           (expand-file-name path tongbu-docroot)))))))
 
 (defun tongbu-save-text (request)
   (with-slots (process headers) request
