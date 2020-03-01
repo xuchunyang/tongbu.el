@@ -144,8 +144,8 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
     (lambda (fn-and-attrs)
       (let* ((f (car fn-and-attrs))
              (attrs (cdr fn-and-attrs))
-             (size (nth 7 attrs))
-             (modtime (nth 5 attrs)))
+             (size (file-attribute-size attrs))
+             (modtime (file-attribute-modification-time attrs)))
         (let ((dirp (file-directory-p (expand-file-name f dir))))
           (format "<tr> <td>%s</td> <td>%s</td> <td>%s</td> </tr>"
                   (format "<a href='%s'>%s</a>"
