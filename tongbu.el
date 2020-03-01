@@ -54,6 +54,7 @@ textarea {
 <html>
   <head>
     <meta charset='utf-8'>
+    <meta name='google' value='notranslate'>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <title>Share text and files</title>
     <style>
