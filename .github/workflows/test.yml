@@ -37,6 +37,10 @@ jobs:
         pwd
         echo $HOME
         realpath ~
+        # expect /home/runner/
+        emacs -Q --batch --eval '(message "%s" (expand-file-name "~/"))'
+        # expect ~/
+        emacs -Q --batch --eval '(message "%s" (abbreviate-file-name (expand-file-name "~/")))'
         curl -v --retry 3 --retry-connrefused localhost:8888
         # expect README (1).md
         curl -v --form file=@README.md localhost:8888`pwd`
