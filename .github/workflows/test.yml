@@ -35,7 +35,7 @@ jobs:
         screen -d -m emacs -Q -L . -l tongbu -f tongbu
         sleep 1
         curl -v localhost:8888
-        curl -v --form file=@README.md localhost:8888`pwd`
+        curl -v --form file=@README.md localhost:8888
         ls
         echo $HOME
         # but it seems 'screen ...' starts as HOME=/, not sure why
