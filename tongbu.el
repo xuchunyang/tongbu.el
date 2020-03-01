@@ -63,7 +63,7 @@ textarea {
   <body>
 
     <form method='post' enctype='multipart/form-data'>
-      <textarea name='text'>%s</textarea>
+      <textarea name='text' rows='%s'>%s</textarea>
       <input type='submit' value='Save'>
     </form>
 
@@ -85,7 +85,8 @@ textarea {
 There are 5 %s in this template, they are for
 
 - CSS
-- text (`tongbu-text')
+- number of lines in `tongbu-text'
+- `tongbu-text'
 - directory name you are visiting
 - directory name you are visiting
 - directory listing.")
@@ -95,6 +96,13 @@ There are 5 %s in this template, they are for
 
 (defvar tongbu-text ""
   "The text for sharing.")
+
+(defun tongbu-count-lines (s)
+  "Return number of lines in S."
+  (with-temp-buffer
+    (insert s)
+    (goto-char (point-min))
+    (- (buffer-size) (forward-line (buffer-size)))))
 
 (defun tongbu-build-html (dir)
   "Build HTML for render.
@@ -106,6 +114,7 @@ The DIR is an absolute path. For example, if user is visiting
 then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
   (format tongbu-html
           tongbu-css
+          (tongbu-count-lines tongbu-text)
           tongbu-text
           (substring dir (1- (length tongbu-docroot)))
           (abbreviate-file-name dir)

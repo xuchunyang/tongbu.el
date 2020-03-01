@@ -34,5 +34,12 @@
                     (tongbu-upload-file-save-to "non-exist" default-directory))
                    "non-exist")))
 
+(ert-deftest tongbu-count-lines ()
+  (should (= (tongbu-count-lines "") 0))
+  (should (= (tongbu-count-lines "A") 1))
+  (should (= (tongbu-count-lines "A\nBB") 2))
+  (should (= (tongbu-count-lines "A\nBB\n") 2))
+  (should (= (tongbu-count-lines "A\nBB\nCCC") 3)))
+
 (provide 'tongbu-tests)
 ;;; tongbu-tests.el ends here
