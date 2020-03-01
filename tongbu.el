@@ -154,7 +154,7 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
                   (if dirp
                       ""
                     (file-size-human-readable size))
-                  (format-time-string "%Y-%m-%d %H:%M:%S" modtime)))))
+                  (format-time-string "%Y/%m/%d %H:%M" modtime)))))
     (tongbu-directory-files dir)
     "\n")
    "</table>"))
