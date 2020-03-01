@@ -34,7 +34,10 @@ jobs:
       run: |
         screen -d -m emacs -Q -L . -l tongbu -f tongbu
         sleep 1
-        curl --retry 3 --retry-connrefused localhost:8888
+        pwd
+        echo $HOME
+        realpath ~
+        curl -v --retry 3 --retry-connrefused localhost:8888
         # expect README (1).md
-        curl --form file=@README.md localhost:8888`pwd`
+        curl -v --form file=@README.md localhost:8888`pwd`
         ls -al
