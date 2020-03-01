@@ -63,12 +63,16 @@ textarea {
   </head>
   <body>
 
+<h3>Share text</h3>
+
     <form method='post' enctype='multipart/form-data'>
       <textarea name='text' rows='%s'>%s</textarea>
       <input type='submit' value='Save'>
     </form>
 
     <br>
+
+<h3>Upload file</h3>
 
     <form action='%s' method='post' enctype='multipart/form-data'>
       <input type='file' name='file' required>
