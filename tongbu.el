@@ -48,6 +48,15 @@ textarea {
 "
   "The stylesheet.")
 
+(defvar tongbu-js ""
+  "The script.
+
+This must be either empty or a script element, e.g.,
+
+  (setq tongbu-js \"<script> alert('Hello World!'); </script>\")
+
+The script element will be added at the end of the HTML.")
+
 ;; IDEA lint (generated) HTML in CI, see tidy, xmllint or https://validator.w3.org/
 (defvar tongbu-html
   "\
@@ -95,6 +104,7 @@ textarea {
   </tbody>
 </table>
 
+%s
   </body>
 </html>
 "
@@ -102,12 +112,13 @@ textarea {
 
 There are 5 %s in this template, they are for
 
-- CSS
+- CSS `tongbu-css'
 - number of lines in `tongbu-text'
 - `tongbu-text'
 - directory name you are visiting
 - directory name you are visiting
-- directory listing.")
+- directory listing
+- Javascript `tongbu-js'.")
 
 (defvar tongbu-docroot (expand-file-name "~/")
   "The web server document root.")
@@ -136,7 +147,8 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
           tongbu-text
           (substring dir (1- (length tongbu-docroot)))
           (abbreviate-file-name dir)
-          (tongbu-list-directory dir)))
+          (tongbu-list-directory dir)
+          tongbu-js))
 
 (defun tongbu-directory-files (dir)
   (append
