@@ -238,11 +238,18 @@ Otherwise, return nil."
            (expand-file-name path tongbu-docroot)))))))
 
 (defun tongbu-save-text (request)
-  (with-slots (process headers) request
-    (let* ((alist (assoc-default "text" headers))
-           (text (alist-get 'content alist)))
-      (setq tongbu-text text)
-      (tongbu-redirect request))))
+  (with-slots (process headers context) request
+    (setq tongbu-text
+          (pcase-exhaustive context
+            ;; usual case
+            ('multipart/form-data
+             (alist-get 'content (assoc-default "text" headers)))
+            ;; unusual case such as EWW does not respect enctype or user use
+            ;; curl --data but forget to change content-type, for example,
+            ;; curl localhost:8888 -d 'text=hello'
+            ('application/x-www-form-urlencoded
+             (assoc-default "text" headers))))
+    (tongbu-redirect request)))
 
 (defun tongbu-redirect (request)
   (with-slots (process headers) request
