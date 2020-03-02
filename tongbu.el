@@ -80,7 +80,18 @@ textarea {
     </form>
 
 <h3>Directory listing for %s</h3>
-%s
+<table>
+  <thead>
+    <tr>
+      <th>Filename</th>
+      <th>Size</th>
+      <th>Date Modified</th>
+    </tr>
+  </thead>
+  <tbody>
+    %s
+  </tbody>
+</table>
 
   </body>
 </html>
@@ -132,32 +143,23 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
    (directory-files-and-attributes dir nil (rx bos (not (any "."))))))
 
 (defun tongbu-list-directory (dir)
-  (concat
-   "
-<table>
-  <tr>
-    <th>Filename</th>
-    <th>Size</th>
-    <th>Date Modified</th>
-  </tr>"
-   (mapconcat
-    (lambda (fn-and-attrs)
-      (let* ((f (car fn-and-attrs))
-             (attrs (cdr fn-and-attrs))
-             (size (nth 7 attrs))
-             (modtime (nth 5 attrs)))
-        (let ((dirp (file-directory-p (expand-file-name f dir))))
-          (format "<tr> <td>%s</td> <td>%s</td> <td>%s</td> </tr>"
-                  (format "<a href='%s'>%s</a>"
-                          (concat (url-hexify-string f) (and dirp "/"))
-                          (concat f (and dirp "/")))
-                  (if dirp
-                      ""
-                    (file-size-human-readable size))
-                  (format-time-string "%Y/%m/%d %H:%M" modtime)))))
-    (tongbu-directory-files dir)
-    "\n")
-   "</table>"))
+  (mapconcat
+   (lambda (fn-and-attrs)
+     (let* ((f (car fn-and-attrs))
+            (attrs (cdr fn-and-attrs))
+            (size (nth 7 attrs))
+            (modtime (nth 5 attrs)))
+       (let ((dirp (file-directory-p (expand-file-name f dir))))
+         (format "<tr> <td>%s</td> <td>%s</td> <td>%s</td> </tr>"
+                 (format "<a href='%s'>%s</a>"
+                         (concat (url-hexify-string f) (and dirp "/"))
+                         (concat f (and dirp "/")))
+                 (if dirp
+                     ""
+                   (file-size-human-readable size))
+                 (format-time-string "%Y/%m/%d %H:%M" modtime)))))
+   (tongbu-directory-files dir)
+   "\n"))
 
 (defun tongbu-handle-index (request)
   (with-slots (process headers) request
