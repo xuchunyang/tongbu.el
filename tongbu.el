@@ -48,6 +48,7 @@ textarea {
 "
   "The stylesheet.")
 
+;; IDEA lint (generated) HTML in CI, see tidy, xmllint or https://validator.w3.org/
 (defvar tongbu-html
   "\
 <!DOCTYPE html>
