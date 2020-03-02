@@ -37,8 +37,7 @@
   "Port number for the tongbu web server."
   :type 'integer)
 
-(defvar tongbu-css
-  "
+(defcustom tongbu-css "
 textarea {
     font-size: 1rem;
     line-height: 1.5;
@@ -46,16 +45,18 @@ textarea {
     width: 100%;
 }
 "
-  "The stylesheet.")
+  "The stylesheet."
+  :type 'string)
 
-(defvar tongbu-js ""
+(defcustom tongbu-js ""
   "The script.
 
 This must be either empty or a script element, e.g.,
 
   (setq tongbu-js \"<script> alert('Hello World!'); </script>\")
 
-The script element will be added at the end of the HTML.")
+The script element will be added at the end of the HTML."
+  :type 'string)
 
 ;; IDEA lint (generated) HTML in CI, see tidy, xmllint or https://validator.w3.org/
 (defvar tongbu-html
