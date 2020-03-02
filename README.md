@@ -21,6 +21,34 @@ Use `M-x list-processes` to stop the server, the process name looks like `ws-ser
 
 The server port. If you set it to 0, Emacs will pick a random port for you.
 
+### `tongbu-css`
+
+The stylesheet. The default value is
+
+``` emacs-lisp
+(setq tongbu-css "
+textarea {
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 10px;
+    width: 100%;
+}
+")
+```
+
+### `tongbu-js`
+
+The script. The default value is an empty string `""`, if you want to change it,
+don't forget the `<script> ... </script>`, for example,
+
+``` emacs-lisp
+;; inline script
+(setq tongbu-js "<script> alert('Hello World!'); </script>")
+
+;; external script
+(setq tongbu-js "<script src='//example.com/hello.js'></script>")
+```
+
 ## Dependencies
 
 - Emacs 25.1
