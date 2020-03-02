@@ -309,6 +309,20 @@ hello (2).txt, and so on."
      ((assoc-default "file" headers) (tongbu-upload-file request))
      (t (tongbu-handle-404 request)))))
 
+(defvar tongbu-log-buffer nil
+  "The server log buffer.
+
+nil means does not log, otherwise it should be a buffer or buffer
+name, if the buffer does not exist, it will be created
+automatically.
+
+It is nil by default since the log is not very interesting,
+unlike nginx or apache's log, e.g.,
+
+2020.03.02.23.07.42.450815000	127.0.0.1	59408	accept from 127.0.0.1
+
+but it's better than nothing, hence the variable.")
+
 ;;;###autoload
 (defun tongbu ()
   "Start the web server for sharing text/files."
@@ -319,7 +333,7 @@ hello (2).txt, and so on."
      (tongbu-file-request-p . tongbu-handle-file)
      ((lambda (_) t)             . tongbu-handle-404))
    tongbu-port
-   nil
+   tongbu-log-buffer
    :host "0.0.0.0")
   (message "http://0.0.0.0:%d" tongbu-port))
 
