@@ -34,8 +34,12 @@
   :group 'tools)
 
 (defcustom tongbu-port 8888
-  "Port number for the tongbu web server."
+  "Port number used by the tongbu web server."
   :type 'integer)
+
+(defcustom tongbu-host "0.0.0.0"
+  "Host name used by the tongbu web server."
+  :type 'string)
 
 (defcustom tongbu-css "
 textarea {
@@ -342,8 +346,8 @@ but it's better than nothing, hence the variable.")
      ((lambda (_) t)             . tongbu-handle-404))
    tongbu-port
    tongbu-log-buffer
-   :host "0.0.0.0")
-  (message "http://0.0.0.0:%d" tongbu-port))
+   :host tongbu-host)
+  (message "http://%s:%d" tongbu-host tongbu-port))
 
 (provide 'tongbu)
 ;;; tongbu.el ends here

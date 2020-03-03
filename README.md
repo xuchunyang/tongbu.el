@@ -21,6 +21,12 @@ Use `M-x list-processes` to stop the server, the process name looks like `ws-ser
 
 The server port. If you set it to 0, Emacs will pick a random port for you.
 
+### `tongbu-host` (defaults to `"0.0.0.0"`)
+
+Host name used by the server.
+
+You can change it to `"127.0.0.1"` then setup a reverse proxy to 127.0.0.1:8888.
+
 ### `tongbu-css`
 
 The stylesheet. The default value is
