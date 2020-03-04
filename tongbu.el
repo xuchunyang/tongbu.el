@@ -82,7 +82,7 @@ The script element will be added at the end of the HTML."
 <h3>Share text</h3>
 
     <form method='post' enctype='multipart/form-data'>
-      <textarea name='text' rows='%s'>%s</textarea>
+      <textarea name='text'>%s</textarea>
       <input type='submit' value='Save'>
     </form>
 
@@ -117,26 +117,18 @@ The script element will be added at the end of the HTML."
 
 There are 5 %s in this template, they are for
 
-- CSS `tongbu-css'
-- number of lines in `tongbu-text'
+- `tongbu-css'
 - `tongbu-text'
 - directory name you are visiting
 - directory name you are visiting
 - directory listing
-- Javascript `tongbu-js'.")
+- `tongbu-js'.")
 
 (defvar tongbu-docroot (expand-file-name "~/")
   "The web server document root.")
 
 (defvar tongbu-text ""
   "The text for sharing.")
-
-(defun tongbu-count-lines (s)
-  "Return number of lines in S."
-  (with-temp-buffer
-    (insert s)
-    (goto-char (point-min))
-    (- (buffer-size) (forward-line (buffer-size)))))
 
 (defun tongbu-build-html (dir)
   "Build HTML for render.
@@ -148,7 +140,6 @@ The DIR is an absolute path. For example, if user is visiting
 then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
   (format tongbu-html
           tongbu-css
-          (max 2 (tongbu-count-lines tongbu-text))
           tongbu-text
           (substring dir (1- (length tongbu-docroot)))
           (abbreviate-file-name dir)
