@@ -333,8 +333,8 @@ hello (2).txt, and so on."
      ((assoc-default "file" headers) (tongbu-upload-file request))
      (t (tongbu-handle-404 request)))))
 
-(defvar tongbu-log-buffer nil
-  "The server log buffer.
+(defvar tongbu-low-level-log-buffer nil
+  "The low level server log buffer.
 
 nil means does not log, otherwise it should be a buffer or buffer
 name, if the buffer does not exist, it will be created
@@ -347,17 +347,36 @@ unlike nginx or apache's log, e.g.,
 
 but it's better than nothing, hence the variable.")
 
+(defvar tongbu-high-level-log-time-format "%Y-%m-%d %H:%M:%S"
+  "Logging time format passed to `format-time-string'.")
+
+(defvar tongbu-high-level-log-buffer nil
+  "The high level server log buffer.")
+
+;; XXX report the response as well (success or fail)
+(defun tongbu-high-level-log (req)
+  (when tongbu-high-level-log-buffer
+    (with-current-buffer (get-buffer-create tongbu-high-level-log-buffer)
+      (goto-char (point-max))
+      (insert (format "%s %s\n"
+                      (format-time-string tongbu-high-level-log-time-format)
+                      (oref req headers)))))
+  ;; must return nil
+  nil)
+
 ;;;###autoload
 (defun tongbu ()
   "Start the web server for sharing text/files."
   (interactive)
   (ws-start
-   '(((:GET  . "^/$")       . tongbu-handle-index)
-     ((:POST . ".*")        . tongbu-handle-post)
-     (tongbu-file-request-p . tongbu-handle-file)
-     ((lambda (_) t)             . tongbu-handle-404))
+   (list
+    (cons #'tongbu-high-level-log  #'ignore)
+    (cons '(:GET  . "^/$")         #'tongbu-handle-index)
+    (cons '(:POST . ".*")          #'tongbu-handle-post)
+    (cons #'tongbu-file-request-p  #'tongbu-handle-file)
+    (cons (lambda (_) t)                #'tongbu-handle-404))
    tongbu-port
-   tongbu-log-buffer
+   tongbu-low-level-log-buffer
    :host tongbu-host)
   (message "http://%s:%d" tongbu-host tongbu-port))
 
