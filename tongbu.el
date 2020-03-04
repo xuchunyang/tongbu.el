@@ -42,11 +42,32 @@
   :type 'string)
 
 (defcustom tongbu-css "
+* {
+    box-sizing: border-box;
+}
+
+body {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.container {
+    margin: 8px;
+}
+
 textarea {
     font-size: 1rem;
     line-height: 1.5;
     padding: 10px;
     width: 100%;
+}
+
+table {
+    width: 100%;
+}
+
+thead th {
+    text-align: left;
 }
 "
   "The stylesheet."
@@ -70,46 +91,46 @@ The script element will be added at the end of the HTML."
   <head>
     <meta charset='utf-8'>
     <meta name='google' content='notranslate'>
-
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <title>Share text and files</title>
     <style>
-      %s
+%s
     </style>
   </head>
   <body>
+    <div class='container'>
+      <h3>Share text</h3>
 
-<h3>Share text</h3>
+      <form method='post' enctype='multipart/form-data'>
+        <textarea name='text'>%s</textarea>
+        <input type='submit' value='Save'>
+      </form>
 
-    <form method='post' enctype='multipart/form-data'>
-      <textarea name='text'>%s</textarea>
-      <input type='submit' value='Save'>
-    </form>
+      <br>
 
-    <br>
+      <h3>Upload file</h3>
 
-<h3>Upload file</h3>
+      <form action='%s' method='post' enctype='multipart/form-data'>
+        <input type='file' name='file' required>
+        <input type='submit'>
+      </form>
 
-    <form action='%s' method='post' enctype='multipart/form-data'>
-      <input type='file' name='file' required>
-      <input type='submit'>
-    </form>
+      <h3>Directory listing for %s</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Filename</th>
+            <th>Size</th>
+            <th>Date Modified</th>
+          </tr>
+        </thead>
+        <tbody>
+          %s
+        </tbody>
+      </table>
 
-<h3>Directory listing for %s</h3>
-<table>
-  <thead>
-    <tr>
-      <th>Filename</th>
-      <th>Size</th>
-      <th>Date Modified</th>
-    </tr>
-  </thead>
-  <tbody>
-    %s
-  </tbody>
-</table>
-
-%s
+      %s
+    </div>
   </body>
 </html>
 "
