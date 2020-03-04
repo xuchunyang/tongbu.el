@@ -151,29 +151,69 @@ There are 5 %s in this template, they are for
 (defvar tongbu-text ""
   "The text for sharing.")
 
-(defun tongbu-build-html (dir)
+(defun tongbu-build-html (dir sort order)
   "Build HTML for render.
 
 The DIR is an absolute path. For example, if user is visiting
 
   http://localhost:8888/Pictures/Screenshots/
 
-then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
+then the DIR is like \"/Users/xcy/Pictures/Screenshots/\".
+
+Sort the DIR according to SORT and ORDER, e.g., if user is
+visiting
+
+  http://localhost:8888/Pictures/Screenshots/?sort=name&order=asc
+
+then SORT is \"name\" and ORDER is \"asc\"."
   (format tongbu-html
           tongbu-css
           tongbu-text
           (substring dir (1- (length tongbu-docroot)))
           (abbreviate-file-name dir)
-          (tongbu-list-directory dir)
+          (tongbu-list-directory dir sort order)
           tongbu-js))
 
-(defun tongbu-directory-files (dir)
-  (append
-   (unless (string= dir tongbu-docroot)
-     (list (cons ".." (file-attributes ".."))))
-   (directory-files-and-attributes dir nil (rx bos (not (any "."))))))
+;; name, size, time
+;; asc, desc
+(defun tongbu-directory-files (dir &optional sort order)
+  (or sort (setq sort "name"))
+  (or order (setq order "asc"))
+  (message "=> %S %S" sort order)
+  (let* ((order-fn (pcase-exhaustive order
+                     ("asc" #'identity)
+                     ("desc" #'not)))
+         (sort-fn (pcase-exhaustive sort
+                    ("name"
+                     (lambda (a b)
+                       (funcall order-fn
+                                (string< (car a) (car b)))))
+                    ("size"
+                     (lambda (a b)
+                       (funcall order-fn
+                                (let ((a-size (nth 7 (cdr a)))
+                                      (b-size (nth 7 (cdr b))))
+                                  (cond
+                                   ((> a-size b-size) t)
+                                   ((< a-size b-size) nil)
+                                   (t (string< (car a) (car b))))))))
+                    ("time"
+                     (lambda (a b)
+                       (funcall order-fn
+                                (let ((a-time (nth 5 (cdr a)))
+                                      (b-time (nth 5 (cdr b))))
+                                  (cond
+                                   ((time-less-p a-time b-time) t)
+                                   ((time-less-p b-time a-time) nil)
+                                   (t (string< (car a) (car b)))))))))))
+    (append
+     (unless (string= dir tongbu-docroot)
+       (list (cons ".." (file-attributes ".."))))
+     (sort
+      (directory-files-and-attributes dir nil (rx bos (not (any "."))) 'nosort)
+      sort-fn))))
 
-(defun tongbu-list-directory (dir)
+(defun tongbu-list-directory (dir sort order)
   (mapconcat
    (lambda (fn-and-attrs)
      (let* ((f (car fn-and-attrs))
@@ -189,13 +229,17 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
                      ""
                    (file-size-human-readable size))
                  (format-time-string "%Y/%m/%d %H:%M" modtime)))))
-   (tongbu-directory-files dir)
+   (tongbu-directory-files dir sort order)
    "\n"))
 
 (defun tongbu-handle-index (request)
   (with-slots (process headers) request
     (ws-response-header process 200 '("Content-type" . "text/html"))
-    (process-send-string process (tongbu-build-html tongbu-docroot))))
+    (process-send-string
+     process
+     (tongbu-build-html tongbu-docroot
+                        (assoc-default "sort" headers)
+                        (assoc-default "order" headers)))))
 
 (defun tongbu-inhibit-download-p (path)
   "Return non-nil to not allow user to download PATH."
@@ -215,7 +259,11 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
       (cond
        ((file-directory-p path)
         (ws-response-header process 200 (cons "Content-type" "text/html"))
-        (process-send-string process (tongbu-build-html path)))
+        (process-send-string
+         process
+         (tongbu-build-html path
+                            (assoc-default "sort" headers)
+                            (assoc-default "order" headers))))
        ((file-regular-p path)
         (pcase (tongbu-inhibit-download-p path)
           ('nil (ws-send-file process path))
@@ -352,6 +400,7 @@ but it's better than nothing, hence the variable.")
   "Start the web server for sharing text/files."
   (interactive)
   (ws-start
+   ;; IDEA Add a log, (lambda (request) (message "%s" request) nil)
    '(((:GET  . "^/$")       . tongbu-handle-index)
      ((:POST . ".*")        . tongbu-handle-post)
      (tongbu-file-request-p . tongbu-handle-file)
