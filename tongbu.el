@@ -194,8 +194,8 @@ then SORT is \"name\" and ORDER is \"asc\"."
                                 (let ((a-size (nth 7 (cdr a)))
                                       (b-size (nth 7 (cdr b))))
                                   (cond
-                                   ((> a-size b-size) t)
-                                   ((< a-size b-size) nil)
+                                   ((< a-size b-size) t)
+                                   ((> a-size b-size) nil)
                                    (t (string< (car a) (car b))))))))
                     ("time"
                      (lambda (a b)
