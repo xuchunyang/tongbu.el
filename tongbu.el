@@ -154,7 +154,7 @@ There are 5 %s in this template, they are for
 (defun tongbu-build-html (dir)
   "Build HTML for render.
 
-The DIR is an absolute path. For example, if user is visiting
+The DIR is an absolute path.  For example, if user is visiting
 
   http://localhost:8888/Pictures/Screenshots/
 
