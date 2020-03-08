@@ -167,13 +167,18 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
           (tongbu-list-directory dir)
           tongbu-js))
 
-(defun tongbu-directory-files (dir)
+(defvar tongbu-file-regexp (rx bos (not (any ".")))
+  "Only files matching this regexp will be listed.")
+
+(defun tongbu-directory-files-and-attributes (dir)
+  "Return files matching `tongbu-file-regexp' in DIR."
   (append
    (unless (string= dir tongbu-docroot)
      (list (cons ".." (file-attributes ".."))))
-   (directory-files-and-attributes dir nil (rx bos (not (any "."))))))
+   (directory-files-and-attributes dir nil tongbu-file-regexp)))
 
 (defun tongbu-list-directory (dir)
+  "Return html table data listing files in DIR."
   (mapconcat
    (lambda (fn-and-attrs)
      (let* ((f (car fn-and-attrs))
@@ -189,10 +194,11 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
                      ""
                    (file-size-human-readable size))
                  (format-time-string "%Y/%m/%d %H:%M" modtime)))))
-   (tongbu-directory-files dir)
+   (tongbu-directory-files-and-attributes dir)
    "\n"))
 
 (defun tongbu-handle-index (request)
+  "Handle REQUEST from GET /."
   (with-slots (process headers) request
     (ws-response-header process 200 '("Content-type" . "text/html"))
     (process-send-string process (tongbu-build-html tongbu-docroot))))
@@ -208,6 +214,7 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
                (file-size-human-readable limit)))))
 
 (defun tongbu-handle-file (request)
+  "Handle REQUEST of listing directory or downloading file."
   (with-slots (process headers) request
     (let* ((path (alist-get :GET headers))
            (path (tongbu-normalize-path path))
@@ -227,17 +234,14 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
            (throw 'close-connection nil))))))))
 
 (defun tongbu-handle-404 (request)
+  "Response 404 \"No Found\" to REQUEST."
   (with-slots (process headers) request
     (ws-send-404 process
                  "404 Not Found\n\n%s"
                  (pp-to-string headers))))
 
 (defun tongbu-normalize-path (uri)
-  "Normalize Request-URI as path.
-
-  (tongbu-normalize-path \"/Pictures/Screen%20Shot%202020-02-05%20at%2007.55.28.png\")
-  ;; => \"Pictures/Screen Shot 2020-02-05 at 07.55.28.png\"
-."
+  "Normalize request URI as file path."
   (url-unhex-string (substring uri 1)))
 
 (defun tongbu-file-request-p (request)
@@ -254,6 +258,7 @@ Otherwise, return nil."
            (expand-file-name path tongbu-docroot)))))))
 
 (defun tongbu-save-text (request)
+  "Handle REQUEST, save text to `tongbu-text'."
   (with-slots (process headers context) request
     (setq tongbu-text
           (pcase-exhaustive context
@@ -268,6 +273,7 @@ Otherwise, return nil."
     (tongbu-redirect request)))
 
 (defun tongbu-redirect (request)
+  "Send a redirect HTML to a post REQUEST."
   (with-slots (process headers) request
     (ws-response-header process 200 '("Content-type" . "text/html"))
     (process-send-string
@@ -308,6 +314,7 @@ hello (2).txt, and so on."
     (expand-file-name filename dir)))
 
 (defun tongbu-upload-file (request)
+  "Handle uploading file REQUEST."
   (with-slots (process headers) request
     (let* ((path (tongbu-normalize-path (alist-get :POST headers)))
            (dir (expand-file-name path tongbu-docroot))
@@ -327,6 +334,7 @@ hello (2).txt, and so on."
       (tongbu-redirect request))))
 
 (defun tongbu-handle-post (request)
+  "Handle all POST REQUEST."
   (with-slots (headers) request
     (cond
      ((assoc-default "text" headers) (tongbu-save-text request))
@@ -355,6 +363,7 @@ but it's better than nothing, hence the variable.")
 
 ;; XXX report the response as well (success or fail)
 (defun tongbu-high-level-log (req)
+  "Log request REQ."
   (when tongbu-high-level-log-buffer
     (with-current-buffer (get-buffer-create tongbu-high-level-log-buffer)
       (goto-char (point-max))
