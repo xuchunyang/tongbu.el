@@ -1,4 +1,4 @@
-;;; tongbu.el --- Share text/file between your computer and phone  -*- lexical-binding: t; -*-
+;;; tongbu.el --- A web server to share text or files between two devices  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2020  Xu Chunyang
 
@@ -23,7 +23,7 @@
 
 ;;; Commentary:
 
-;; This package provides A web server for sharing text/files between two divices.
+;; This package provides A web server for sharing text/files between two devices.
 
 ;;; Code:
 
@@ -208,7 +208,7 @@ then the DIR is like \"/Users/xcy/Pictures/Screenshots/\"."
   (let ((size (nth 7 (file-attributes path)))
         (limit (* 1 1024 1024 1024)))
     (when (> size limit)
-      (message "Can't download %s (%s) because it's large than %s"
+      (message "Can't download %s (%s) because it's larger than %s"
                path
                (file-size-human-readable size)
                (file-size-human-readable limit)))))
@@ -287,7 +287,7 @@ Otherwise, return nil."
 The FILENAME is provided by user, it can be nil or empty (I am
 not sure).  The DIR is where the file should be in.
 
-This function is inspired Chrome's download rename behavior, that
+This function is inspired by Chrome's download rename behavior, that
 is, let's say you try to download hello.txt, if hello.txt exists,
 use hello (1).txt, if hello (1).txt also exists, use
 hello (2).txt, and so on."
