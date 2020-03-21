@@ -1,4 +1,4 @@
-# Share text/file between your computer and phone
+# A web server to share text or files between two devices
 
 `tongbu.el` (同步) is an Emacs package which creates a web server for sharing
 text and files between your computer and phone via a web browser.
