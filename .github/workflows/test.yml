@@ -33,7 +33,7 @@ jobs:
     - name: Test the web server
       run: |
         screen -d -m emacs -Q -L . -l tongbu -f tongbu
-        sleep 1
+        sleep 3
         curl -v localhost:8888
         curl -v --form file=@README.md localhost:8888
         ls
