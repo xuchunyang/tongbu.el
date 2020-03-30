@@ -24,7 +24,7 @@ jobs:
     - name: Download & byte compile web-server
       run: |
         curl -s --remote-name-all https://raw.githubusercontent.com/eschulte/emacs-web-server/master/web-server{,-status-codes}.el
-        emacs -Q --batch -L -f batch-byte-compile web-server*
+        emacs -Q --batch -L . -f batch-byte-compile web-server*
         ls -al
     - name: Check byte compile
       run: emacs -Q --batch -L . --eval "(setq byte-compile-error-on-warn t)" -f batch-byte-compile tongbu.el
