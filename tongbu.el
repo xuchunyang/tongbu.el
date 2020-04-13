@@ -111,7 +111,7 @@ The script element will be added at the end of the HTML."
       <h3>Upload file</h3>
 
       <form action='%s' method='post' enctype='multipart/form-data'>
-        <input type='file' name='file' required>
+        <input type='file' name='file' multiple='multiple' required>
         <input type='submit' value='Upload'>
       </form>
 
@@ -317,21 +317,23 @@ hello (2).txt, and so on."
   "Handle uploading file REQUEST."
   (with-slots (process headers) request
     (let* ((path (tongbu-normalize-path (alist-get :POST headers)))
-           (dir (expand-file-name path tongbu-docroot))
-           (alist (assoc-default "file" headers))
-           (c-filename (alist-get 'filename alist))
-           (c-filename (if (and c-filename (not (string= "" c-filename)))
-                           c-filename
-                         (format-time-string "upload-%Y-%m-%d-%H:%M:%S")))
-           (new-name (tongbu-upload-file-save-to c-filename dir))
-           (c-content (alist-get 'content alist)))
-      (let ((coding-system-for-write 'binary))
-        (write-region c-content nil new-name))
-      (message "[%s] saved %d bytes to %s"
-               (current-time-string)
-               (string-bytes c-content)
-               new-name)
-      (tongbu-redirect request))))
+           (dir (expand-file-name path tongbu-docroot)))
+      (dolist (header headers)
+        (when (equal (car header) "file")
+          (let* ((alist (cdr header))
+                 (c-filename (alist-get 'filename alist))
+                 (c-filename (if (and c-filename (not (string= "" c-filename)))
+                                 c-filename
+                               (format-time-string "upload-%Y-%m-%d-%H:%M:%S")))
+                 (new-name (tongbu-upload-file-save-to c-filename dir))
+                 (c-content (alist-get 'content alist)))
+            (let ((coding-system-for-write 'binary))
+              (write-region c-content nil new-name))
+            (message "[%s] saved %d bytes to %s"
+                     (current-time-string)
+                     (string-bytes c-content)
+                     new-name))
+          (tongbu-redirect request))))))
 
 (defun tongbu-handle-post (request)
   "Handle all POST REQUEST."
