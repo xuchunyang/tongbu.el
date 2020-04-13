@@ -151,6 +151,9 @@ There are 5 %s in this template, they are for
 (defvar tongbu-text ""
   "The text for sharing.")
 
+(defvar tongbu-ws-server nil
+  "The web-server object of tongbu.")
+
 (defun tongbu-build-html (dir)
   "Build HTML for render.
 
@@ -377,17 +380,30 @@ but it's better than nothing, hence the variable.")
 (defun tongbu ()
   "Start the web server for sharing text/files."
   (interactive)
-  (ws-start
-   (list
-    (cons #'tongbu-high-level-log  #'ignore)
-    (cons '(:GET  . "^/$")         #'tongbu-handle-index)
-    (cons '(:POST . ".*")          #'tongbu-handle-post)
-    (cons #'tongbu-file-request-p  #'tongbu-handle-file)
-    (cons (lambda (_) t)                #'tongbu-handle-404))
-   tongbu-port
-   tongbu-low-level-log-buffer
-   :host tongbu-host)
-  (message "http://%s:%d" tongbu-host tongbu-port))
+  (if tongbu-ws-server
+      (message "Tongbu server is running, which url is \"http://%s:%d\"."
+               tongbu-host tongbu-port)
+    (setq tongbu-ws-server
+          (ws-start
+           (list
+            (cons #'tongbu-high-level-log  #'ignore)
+            (cons '(:GET  . "^/$")         #'tongbu-handle-index)
+            (cons '(:POST . ".*")          #'tongbu-handle-post)
+            (cons #'tongbu-file-request-p  #'tongbu-handle-file)
+            (cons (lambda (_) t)                #'tongbu-handle-404))
+           tongbu-port
+           tongbu-low-level-log-buffer
+           :host tongbu-host))
+    (message "http://%s:%d" tongbu-host tongbu-port)))
+
+;;;###autoload
+(defun tongbu-stop ()
+  "Stop tongbu server."
+  (interactive)
+  (when (ws-server-p tongbu-ws-server)
+    (ws-stop tongbu-ws-server)
+    (setq tongbu-ws-server nil)
+    (message "Tongbu server has been stop.")))
 
 (provide 'tongbu)
 ;;; tongbu.el ends here
