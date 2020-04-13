@@ -112,7 +112,7 @@ The script element will be added at the end of the HTML."
 
       <form action='%s' method='post' enctype='multipart/form-data'>
         <input type='file' name='file' required>
-        <input type='submit'>
+        <input type='submit' value='Upload'>
       </form>
 
       <h3>Directory listing for %s</h3>
