@@ -328,13 +328,15 @@ hello (2).txt, and so on."
                  (c-filename (if (and c-filename (not (string= "" c-filename)))
                                  c-filename
                                (format-time-string "upload-%Y-%m-%d-%H:%M:%S")))
-                 (new-name (tongbu-upload-file-save-to c-filename dir))
+                 (new-name (decode-coding-string
+                            (tongbu-upload-file-save-to c-filename dir)
+                            (or buffer-file-coding-system 'prefer-utf-8)))
                  (c-content (alist-get 'content alist)))
             (let ((coding-system-for-write 'binary))
               (write-region c-content nil new-name))
-            (message "[%s] saved %d bytes to %s"
-                     (current-time-string)
-                     (string-bytes c-content)
+            (message "Tongbu: [%s] %dKB -> \"%s\""
+                     (format-time-string "%Y-%m-%d %H:%M:%S")
+                     (/ (string-bytes c-content) 1024)
                      new-name))
           (tongbu-redirect request))))))
 
