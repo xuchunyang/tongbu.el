@@ -5,6 +5,8 @@
 ;; Author: Xu Chunyang
 ;; Homepage: https://github.com/xuchunyang/tongbu.el
 ;; Package-Requires: ((emacs "25.1") (web-server "0.1.2"))
+;; Package-Version: 20200414.507
+;; Package-Commit: 6f6e5c5446f0c5735357ab520b249ab97295653e
 ;; Keywords: tools
 ;; Version: 0
 
@@ -68,6 +70,14 @@ table {
 
 thead th {
     text-align: left;
+}
+.login {
+    width:300px;
+    height:35px;
+}
+.login-submit {
+    width:300px;
+    height:50px;
 }
 "
   "The stylesheet."
@@ -380,6 +390,117 @@ but it's better than nothing, hence the variable.")
   ;; must return nil
   nil)
 
+(defvar tongbu-activate-login nil
+  "The tongbu activate login function .
+
+nil means does not activate login function, otherwise the login function should be activated.")
+
+(defvar tongbu-login-username "username"
+  "The web server login username.")
+
+(defvar tongbu-login-passwrod "password"
+  "The web server login password.")
+
+(defvar tongbu-html--login
+  "\
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <meta name='google' content='notranslate'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>login</title>
+    <style>
+%s
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <br>
+
+      <h3>Login</h3>
+      
+      <form action='%s' method='post'>
+        <input class='login' type='text' name='username' placeholder='username' required>
+        <br>
+        <br>
+        <input class='login' type='password' name='password' placeholder='password' required>
+        <br>
+        <br>
+        <input class='login-submit' type='submit' value='Login'>
+      </form>
+    </div>
+  </body>
+</html>
+"
+  "HTML login template.
+
+There are 1 %s in this template, they are for
+
+- `tongbu-css'.")
+
+(defun tongbu-build-login-html ()
+  "Build HTML for login.."
+  (format tongbu-html--login
+          tongbu-css
+          "login.do"))
+
+
+
+(defun tongbu-login-request-p (request)
+  "Return non-nil if logined.
+Otherwise, return nil."
+  (when tongbu-activate-login
+    (with-slots (headers) request
+    (let ((cookie (alist-get :COOKIE headers)))
+      (cond
+       (cookie (let* ((realsession (concat "session=" (sha1 (concat tongbu-login-username tongbu-login-passwrod (format-time-string "%Y-%m-%d"))))))
+                 (if  (string-equal realsession cookie)
+                     (if (and (assoc :GET  (ws-headers request))
+                              (string-equal "/login.do"
+                                            (cdr (assoc :GET
+                                                        (ws-headers request)))))
+                         (with-slots (process headers) request
+                           (ws-response-header process 302 '("Location" . "/")))
+                       nil
+                         )
+                   t)))
+       (t t))))
+    ))
+
+(defun tongbu-handle-login-request (request)
+  (with-slots (process headers) request
+    (ws-response-header process 200 '("Content-type" . "text/html") '("Set-Cookie" . ""))
+    (process-send-string process (tongbu-build-login-html)))
+  )
+(defun tongbu-handle-login (request)
+  "Handle REQUEST of login."
+  (cond
+   ((and (assoc :GET (ws-headers request))
+         (string-equal "/login.do"
+                       (cdr (assoc :GET
+                                   (ws-headers request)))))
+    (tongbu-handle-login-request request))
+   ((and (assoc :POST  (ws-headers request))
+        (string-equal "/login.do"
+                       (cdr (assoc :POST
+                                   (ws-headers request)))))
+    (with-slots (process headers) request
+      (let* ((username (assoc-default "username" headers))
+             (password (assoc-default "password" headers))
+             (logintime (format-time-string "%Y-%m-%d"))
+             (session (cons "Set-Cookie" (concat "session=" (sha1 (concat username password logintime))))))
+        (if (and (string-equal username tongbu-login-username) (string-equal password tongbu-login-passwrod))
+            (progn
+              (message "login %s in %s" username (format-time-string "%Y-%m-%d %H:%M:%S"))
+              (ws-response-header process 200 '("Content-type" . "text/html") session)
+              (process-send-string process (tongbu-build-html tongbu-docroot))
+              )
+         (tongbu-handle-login-request request))
+        )))
+   (t (with-slots (process headers) request
+                           (ws-response-header process 302 '("Location" . "/login.do"))))))
+
 ;;;###autoload
 (defun tongbu ()
   "Start the web server for sharing text/files."
@@ -391,6 +512,7 @@ but it's better than nothing, hence the variable.")
           (ws-start
            (list
             (cons #'tongbu-high-level-log  #'ignore)
+            (cons #'tongbu-login-request-p  #'tongbu-handle-login)
             (cons '(:GET  . "^/$")         #'tongbu-handle-index)
             (cons '(:POST . ".*")          #'tongbu-handle-post)
             (cons #'tongbu-file-request-p  #'tongbu-handle-file)
@@ -399,6 +521,9 @@ but it's better than nothing, hence the variable.")
            tongbu-low-level-log-buffer
            :host tongbu-host))
     (message "http://%s:%d" tongbu-host tongbu-port)))
+
+
+
 
 ;;;###autoload
 (defun tongbu-stop ()
