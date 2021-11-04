@@ -446,13 +446,17 @@ There are 1 %s in this template, they are for
           "login.do"))
 
 
-
+(defun tongbu-login-get-cookie (pending)
+  (let* ((cookiestring (if (string-match "Cookie: " pending) (substring pending (match-end 0)) "")))
+     (if (string-match "[\r\n]" cookiestring) (substring cookiestring 0 (match-beginning 0)) nil)
+    )
+  )
 (defun tongbu-login-request-p (request)
   "Return non-nil if logined.
 Otherwise, return nil."
   (when tongbu-activate-login
-    (with-slots (headers) request
-    (let ((cookie (alist-get :COOKIE headers)))
+    (with-slots (pending headers) request
+      (let* ((cookie (tongbu-login-get-cookie pending)  ))
       (cond
        (cookie (let* ((realsession (concat "session=" (sha1 (concat tongbu-login-username tongbu-login-passwrod (format-time-string "%Y-%m-%d"))))))
                  (if  (string-equal realsession cookie)
